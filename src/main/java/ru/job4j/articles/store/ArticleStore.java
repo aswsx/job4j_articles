@@ -22,6 +22,8 @@ public class ArticleStore implements Store<Article>, AutoCloseable {
 
     private Connection connection;
 
+    private static final String ERRMSG = "Не удалось выполнить операцию: { }";
+
     public ArticleStore(Properties properties) {
         this.properties = properties;
         initConnection();
@@ -37,7 +39,7 @@ public class ArticleStore implements Store<Article>, AutoCloseable {
                     properties.getProperty("password")
             );
         } catch (SQLException throwables) {
-            LOGGER.error("Не удалось выполнить операцию: { }", throwables.getCause());
+            LOGGER.error(ERRMSG, throwables.getCause());
             throw new IllegalStateException();
         }
     }
@@ -45,10 +47,10 @@ public class ArticleStore implements Store<Article>, AutoCloseable {
     private void initScheme() {
         LOGGER.info("Инициализация таблицы статей");
         try (var statement = connection.createStatement()) {
-            var sql = Files.readString(Path.of("db/scripts", "articles.sql"));
+            var sql = Files.readString(Path.of("job4j_articles/db/scripts", "articles.sql"));
             statement.execute(sql);
         } catch (Exception e) {
-            LOGGER.error("Не удалось выполнить операцию: { }", e.getCause());
+            LOGGER.error(ERRMSG, e.getCause());
             throw new IllegalStateException();
         }
     }
@@ -65,7 +67,7 @@ public class ArticleStore implements Store<Article>, AutoCloseable {
                 model.setId(key.getInt(1));
             }
         } catch (Exception e) {
-            LOGGER.error("Не удалось выполнить операцию: { }", e.getCause());
+            LOGGER.error(ERRMSG, e.getCause());
             throw new IllegalStateException();
         }
         return model;
@@ -85,7 +87,7 @@ public class ArticleStore implements Store<Article>, AutoCloseable {
                 ));
             }
         } catch (Exception e) {
-            LOGGER.error("Не удалось выполнить операцию: { }", e.getCause());
+            LOGGER.error(ERRMSG, e.getCause());
             throw new IllegalStateException();
         }
         return articles;
